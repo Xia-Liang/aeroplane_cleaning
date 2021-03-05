@@ -9,3 +9,4 @@
 * Spawn a car in env
 * Dynamic weather
 * Manually control
+* RGB sensor, save image to disk
