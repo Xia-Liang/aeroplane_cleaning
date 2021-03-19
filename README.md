@@ -10,3 +10,12 @@
 * Dynamic weather
 * Manually control
 * Add RGB sensor, save image to disk, async
+* Add Lidar sensor, save data to disk, async
+* Update Carla into 0.9.11
+* Break the plane into pieces, do costomize semantic segmentation
+
+## Some useful link
+
+| Key word | Link |
+| :-: | :-: |
+| bounding box based on color | https://stackoverflow.com/questions/50051916/bounding-box-on-objects-based-on-color-python |
