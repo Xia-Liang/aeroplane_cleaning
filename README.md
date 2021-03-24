@@ -19,3 +19,9 @@
 | Key word | Link |
 | :-: | :-: |
 | bounding box based on color | https://stackoverflow.com/questions/50051916/bounding-box-on-objects-based-on-color-python |
+
+## what we will do 
+
+* RGB and Lidar fusion
+* do segmentation of 3D point cloud
+* get ave distance of Lidar
