@@ -38,10 +38,8 @@ Use ARROWS or WASD keys for control.
 
 try:
     from config import *
-    # from CarlaSyncMode import *
-    from display import *
 except ImportError:
-    raise RuntimeError('cannot import config file')
+    raise ImportError('cannot import config file')
 
 
 # ==============================================================================
@@ -135,7 +133,8 @@ def carla_main():
 
         # --- start point --- #
         # 1. spawn point
-        spawn_point = carla.Transform(carla.Location(x=136, y=315, z=3),
+        spawn_point = carla.Transform(carla.Location(x=300, y=315, z=3),
+
                                       carla.Rotation(pitch=0.000000, yaw=270.000, roll=0.000000))
         print('spawn_point:', spawn_point)
         # generate the vehicle
@@ -162,7 +161,7 @@ def carla_main():
         controller = KeyboardControl(vehicle)
 
         # --- Create a synchronous mode context ---#
-        synchronous_fps = 20
+        synchronous_fps = 40
         with CarlaSyncMode(world, camera_rgb, fps=synchronous_fps) as sync_mode:
             while True:
                 #  quit the while
