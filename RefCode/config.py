@@ -2,6 +2,25 @@ import glob
 import os
 import sys
 
+
+# fix carla error bug
+# try:
+#     sys.path.append(glob.glob('PythonAPI')[0])
+# except ImportError:
+#     raise ImportError('cannot import carla PythonAPI')
+#
+
+try:
+    sys.path.append(glob.glob('C:\\carla0.9.11\\PythonAPI\\carla\\dist\\carla-*%d.%d-%s.egg' % (
+        sys.version_info.major,
+        sys.version_info.minor,
+        'win-amd64' if os.name == 'nt' else 'linux-x86_64'))[0])
+    print(sys.path)
+    print(sys.version_info.major, ".", sys.version_info.minor, "  add egg successfully")
+except ImportError:
+    raise ImportError('cannot import carla egg file')
+
+
 try:
     import pygame
     from pygame.locals import K_s
@@ -10,7 +29,7 @@ try:
     from pygame.locals import K_d
     from pygame.locals import K_ESCAPE
 except ImportError:
-    raise RuntimeError('cannot import pygame package')
+    raise ImportError('cannot import pygame package')
 
 
 try:
@@ -22,43 +41,24 @@ try:
     import math
     import queue
     import argparse
-except IndexError:
-    raise IndexError('cannot import carla reference package')
+except ImportError:
+    raise ImportError('cannot import carla reference package')
 
 
 try:
     # lidar
     import open3d as o3d
     from matplotlib import cm  # color map
-except IndexError:
-    raise IndexError('cannot import lidar reference package')
-
-
-try:
-    sys.path.append(glob.glob('C:\carla0.9.11\PythonAPI\carla\dist\carla-*%d.%d-%s.egg' % (
-        sys.version_info.major,
-        sys.version_info.minor,
-        'win-amd64' if os.name == 'nt' else 'linux-x86_64'))[0])
-    print(sys.path)
-    print(sys.version_info.major, ".", sys.version_info.minor, "  add egg successfully")
-except IndexError:
-    pass
-
-
-# fix carla error bug
-try:
-    sys.path.append(glob.glob('PythonAPI')[0])
-except IndexError:
-    pass
+except ImportError:
+    raise ImportError('cannot import open3d or matplotlib package')
 
 
 actor_list = list()
 
 # pygame display
-FPS = 45
 IMG_WIDTH = 800
 IMG_HEIGHT = 600
-# surface = None
+surface = None
 SHOW_CAM = True
 
 
@@ -146,12 +146,28 @@ def get_speed(vehicle):
     return 3.6 * math.sqrt(vel.x ** 2 + vel.y ** 2 + vel.z ** 2)
 
 
-def draw_image(surface, image, blend=False):
-    array = np.frombuffer(image.raw_data, dtype=np.dtype("uint8"))
-    array = np.reshape(array, (image.height, image.width, 4))
-    array = array[:, :, :3]
-    array = array[:, :, ::-1]
-    image_surface = pygame.surfarray.make_surface(array.swapaxes(0, 1))
-    if blend:
-        image_surface.set_alpha(100)
-    surface.blit(image_surface, (0, 0))
+def generate_vehicle_bp(world, blueprint_library):
+    vehicle_bp = blueprint_library.filter('model3')[0]
+    vehicle_bp.set_attribute('role_name', 'runner')
+    white = '255.0, 255.0, 255.0'
+    vehicle_bp.set_attribute('color', white)
+    return vehicle_bp
+
+
+def generate_rgb_bp(world, blueprint_library):
+    rgb_camera_bp = blueprint_library.find('sensor.camera.rgb')
+    rgb_camera_bp.set_attribute("image_size_x", "%f" % IMG_WIDTH)  # image width
+    rgb_camera_bp.set_attribute("image_size_y", "%f" % IMG_HEIGHT)  # image height
+    rgb_camera_bp.set_attribute("fov", "110")  # Horizontal field of view in degrees
+    rgb_camera_bp.set_attribute("sensor_tick", "0.05")
+    return rgb_camera_bp
+
+
+def generate_rgb_sem_bp(world, blueprint_library):
+    rgb_sem_bp = blueprint_library.find('sensor.camera.semantic_segmentation')
+    rgb_sem_bp.set_attribute("image_size_x", "%f" % IMG_WIDTH)  # image width
+    rgb_sem_bp.set_attribute("image_size_y", "%f" % IMG_HEIGHT)  # image height
+    rgb_sem_bp.set_attribute("fov", "110")  # Horizontal field of view in degrees
+    rgb_sem_bp.set_attribute("sensor_tick", "0.05")
+    return rgb_sem_bp
+
