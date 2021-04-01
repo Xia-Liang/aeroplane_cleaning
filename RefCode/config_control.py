@@ -60,19 +60,24 @@ class KeyboardControl(object):
         self.player.apply_control(self._control)
 
     def _parse_vehicle_keys(self, keys, milliseconds):
+        # move forward or backward
         if keys[K_w]:
-            self._control.throttle = min(self._control.throttle + 0.1, 0.5)
+            self._control.reverse = False
+            self._control.throttle = min(self._control.throttle + 0.2, 0.75)
+        elif keys[K_q]:
+            self._control.reverse = True
+            self._control.throttle = min(self._control.throttle + 0.2, 0.75)
         else:
             self._control.throttle = 0.0
-            # fix the velocity
-            # self._control.throttle = 0.40
 
+        # brake
         if keys[K_s]:
             self._control.brake = min(self._control.brake + 0.2, 1)
         else:
             self._control.brake = 0
 
-        steer_increment = 5e-4 * milliseconds
+        # turn left or right
+        steer_increment = 1e-3 * milliseconds
         if keys[K_a]:
             if self._steer_cache > 0:
                 self._steer_cache = 0

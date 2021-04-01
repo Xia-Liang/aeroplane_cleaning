@@ -6,7 +6,7 @@ save file in D:\mb95541\aeroplane\data\rgb-sem
 
 try:
     from config import *
-    from manual_control import *
+    from config_control import *
 except ImportError:
     raise ImportError('cannot import config file')
 
@@ -26,22 +26,22 @@ def process_rgb(rgb):
     # rgb.save_to_disk('D:\\mb95541\\aeroplane\\data\\rgb\\%d' % rgb.frame)
 
 
-# def process_rgb_sem(rgb_sem):
-#
-#     """
-#     process the image, update surface in pygame
-#     """
-#     global surface
-#     rgb_sem.convert(carla.ColorConverter.CityScapesPalette)
-#
-#     array = np.frombuffer(rgb_sem.raw_data, dtype=np.dtype("uint8"))
-#     array = np.reshape(array, (rgb_sem.height, rgb_sem.width, 4))
-#     array = array[:, :, :3]
-#     array = array[:, :, ::-1]  # switch r,g,b
-#     array = array.swapaxes(0, 1)  # exchange the width and height
-#     surface = pygame.surfarray.make_surface(array)  # Copy an array to a new surface
-#
-#     # rgb_sem.save_to_disk('D:\\mb95541\\aeroplane\\data\\rgb_sem\\%d' % rgb_sem.frame)
+def process_rgb_sem(rgb_sem):
+
+    """
+    process the image, update surface in pygame
+    """
+    global surface
+    rgb_sem.convert(carla.ColorConverter.CityScapesPalette)
+
+    array = np.frombuffer(rgb_sem.raw_data, dtype=np.dtype("uint8"))
+    array = np.reshape(array, (rgb_sem.height, rgb_sem.width, 4))
+    array = array[:, :, :3]
+    array = array[:, :, ::-1]  # switch r,g,b
+    array = array.swapaxes(0, 1)  # exchange the width and height
+    surface = pygame.surfarray.make_surface(array)  # Copy an array to a new surface
+
+    # rgb_sem.save_to_disk('D:\\mb95541\\aeroplane\\data\\rgb_sem\\%d' % rgb_sem.frame)
 
 
 def carla_main():
@@ -97,7 +97,7 @@ def carla_main():
         # --- controller --- #
         controller = KeyboardControl(vehicle)
 
-        # --- Create a synchronous mode context ---#
+        # --- Create a asynchronous mode context ---#
         while True:
             if should_quit():
                 return

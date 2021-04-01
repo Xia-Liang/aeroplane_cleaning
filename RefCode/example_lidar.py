@@ -1,6 +1,6 @@
 try:
     from config import *
-    from manual_control import *
+    from config_control import *
 except ImportError:
     raise ImportError('cannot import config file')
 

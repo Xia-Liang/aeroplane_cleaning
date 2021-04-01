@@ -1,7 +1,7 @@
 import glob
 import os
 import sys
-
+import re
 
 # fix carla error bug
 # try:
@@ -27,6 +27,7 @@ try:
     from pygame.locals import K_w
     from pygame.locals import K_a
     from pygame.locals import K_d
+    from pygame.locals import K_q
     from pygame.locals import K_ESCAPE
 except ImportError:
     raise ImportError('cannot import pygame package')
@@ -34,19 +35,22 @@ except ImportError:
 
 try:
     import carla
-    import random
     import time
-    import numpy as np
     import weakref
     import math
-    import queue
+    import random
+    import numpy as np
+    import logging
     import argparse
 except ImportError:
     raise ImportError('cannot import carla reference package')
 
 
 try:
+    import queue
+    import collections
     from matplotlib import cm
+    import datetime
     from datetime import datetime
     import open3d as o3d
 except ImportError:
@@ -56,8 +60,8 @@ except ImportError:
 actor_list = list()
 
 # pygame display
-IMG_WIDTH = 800
-IMG_HEIGHT = 600
+IMG_WIDTH = 1080
+IMG_HEIGHT = 720
 surface = None
 SHOW_CAM = True
 
@@ -87,6 +91,20 @@ def get_speed(vehicle):
     return 3.6 * math.sqrt(vel.x ** 2 + vel.y ** 2 + vel.z ** 2)
 
 
+def should_quit():
+    """
+    stop event
+    :return:
+    """
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            return True
+        elif event.type == pygame.KEYUP:
+            if event.key == pygame.K_ESCAPE:
+                return True
+    return False
+
+
 def generate_vehicle_bp(world, blueprint_library):
     vehicle_bp = blueprint_library.filter('model3')[0]
     vehicle_bp.set_attribute('role_name', 'runner')
@@ -100,7 +118,7 @@ def generate_rgb_bp(world, blueprint_library):
     rgb_camera_bp.set_attribute("image_size_x", "%f" % IMG_WIDTH)  # image width
     rgb_camera_bp.set_attribute("image_size_y", "%f" % IMG_HEIGHT)  # image height
     rgb_camera_bp.set_attribute("fov", "110")  # Horizontal field of view in degrees
-    rgb_camera_bp.set_attribute("sensor_tick", "0.05")
+    # rgb_camera_bp.set_attribute("sensor_tick", "0.05")
     return rgb_camera_bp
 
 
@@ -109,7 +127,7 @@ def generate_rgb_sem_bp(world, blueprint_library):
     rgb_sem_bp.set_attribute("image_size_x", "%f" % IMG_WIDTH)  # image width
     rgb_sem_bp.set_attribute("image_size_y", "%f" % IMG_HEIGHT)  # image height
     rgb_sem_bp.set_attribute("fov", "110")  # Horizontal field of view in degrees
-    rgb_sem_bp.set_attribute("sensor_tick", "0.05")
+    # rgb_sem_bp.set_attribute("sensor_tick", "0.05")
     return rgb_sem_bp
 
 
@@ -121,7 +139,7 @@ def generate_lidar_bp(world, blueprint_library):
     lidar_bp.set_attribute("rotation_frequency", "10")  # Lidar rotation frequency. default 10
     lidar_bp.set_attribute("upper_fov", "25")  # Angle in degrees of the highest laser.
     lidar_bp.set_attribute("lower_fov", "-25")  # Angle in degrees of the lowest laser.
-    lidar_bp.set_attribute("sensor_tick", "0.01")  # Simulation seconds between sensor captures (ticks).
+    # lidar_bp.set_attribute("sensor_tick", "0.05")  # Simulation seconds between sensor captures (ticks).
     return lidar_bp
 
 
@@ -133,7 +151,7 @@ def generate_lidar_sem_bp(world, blueprint_library):
     lidar_sem_bp.set_attribute("rotation_frequency", "10")  # Lidar rotation frequency. default 10
     lidar_sem_bp.set_attribute("upper_fov", "25")  # Angle in degrees of the highest laser.
     lidar_sem_bp.set_attribute("lower_fov", "-25")  # Angle in degrees of the lowest laser.
-    lidar_sem_bp.set_attribute("sensor_tick", "0.01")  # Simulation seconds between sensor captures (ticks).
+    # lidar_sem_bp.set_attribute("sensor_tick", "0.01")  # Simulation seconds between sensor captures (ticks).
     return lidar_sem_bp
 
 
@@ -151,7 +169,7 @@ class CarlaSyncMode(object):
         self.world = world
         self.sensors = sensors
         self.frame = None
-        self.delta_seconds = 1.0 / kwargs.get('fps', 20)
+        self.delta_seconds = 1.0 / kwargs.get('fps', 30)
         self._queues = []
         self._settings = None
 

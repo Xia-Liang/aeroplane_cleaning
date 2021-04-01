@@ -6,7 +6,7 @@ save file in D:\mb95541\aeroplane\data\rgb
 
 try:
     from config import *
-    from manual_control import *
+    from config_control import *
 except ImportError:
     raise ImportError('cannot import config file')
 
@@ -23,7 +23,7 @@ def process_rgb(rgb):
     array = array.swapaxes(0, 1)  # exchange the width and height
     surface = pygame.surfarray.make_surface(array)  # Copy an array to a new surface
 
-    rgb.save_to_disk('D:\\mb95541\\aeroplane\\data\\rgb\\%d' % rgb.frame)
+    # rgb.save_to_disk('D:\\mb95541\\aeroplane\\data\\rgb\\%d' % rgb.frame)
 
 
 def carla_main():
@@ -68,7 +68,7 @@ def carla_main():
         # --- controller --- #
         controller = KeyboardControl(vehicle)
 
-        # --- Create a synchronous mode context ---#
+        # --- Create a asynchronous mode context ---#
         while True:
             if should_quit():
                 return

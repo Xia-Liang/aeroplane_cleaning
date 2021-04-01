@@ -1,6 +1,8 @@
+# https://www.gameres.com/331290.html
+# fps in client and server
 try:
     from config import *
-    from manual_control import *
+    from config_control import *
 except ImportError:
     raise ImportError('cannot import config file')
 
@@ -11,6 +13,8 @@ def draw_image(surface, image, blend=False):
     array = array[:, :, :3]
     array = array[:, :, ::-1]
     image_surface = pygame.surfarray.make_surface(array.swapaxes(0, 1))
+    # https://www.pygame.org/docs/ref/surface.html?highlight=set_alpha#pygame.Surface.set_alpha
+    # The alpha value is an integer from 0 to 255, 0 is fully transparent and 255 is fully opaque.
     if blend:
         image_surface.set_alpha(100)
     surface.blit(image_surface, (0, 0))
@@ -27,53 +31,51 @@ def main():
         client.set_timeout(10.0)
         world = client.get_world()
         blueprint_library = world.get_blueprint_library()
-        # m = world.get_map()
 
         # --- start point --- #
-        spawn_point = carla.Transform(carla.Location(x=280, y=315, z=3),
+        spawn_point = carla.Transform(carla.Location(x=260, y=315, z=3),
                                       carla.Rotation(pitch=0.000000, yaw=270.000, roll=0.000000))
 
-        vehicle = world.spawn_actor(
-            random.choice(blueprint_library.filter('vehicle.*')),
-            spawn_point)
-        actor_list.append(vehicle)
+        vehicle = world.spawn_actor(random.choice(blueprint_library.filter('vehicle.*')), spawn_point)
         vehicle.set_simulate_physics(True)
+        actor_list.append(vehicle)
 
-        camera_rgb = world.spawn_actor(
-            blueprint_library.find('sensor.camera.rgb'),
-            carla.Transform(carla.Location(x=-5.5, z=2.8), carla.Rotation(pitch=-15)),
+        rgb_camera = world.spawn_actor(
+            generate_rgb_bp(world, blueprint_library),
+            carla.Transform(carla.Location(x=0, y=0.0, z=2.8), carla.Rotation(pitch=0, yaw=0.0, roll=0.0)),
             attach_to=vehicle)
-        actor_list.append(camera_rgb)
+        actor_list.append(rgb_camera)
 
-        camera_semseg = world.spawn_actor(
-            blueprint_library.find('sensor.camera.semantic_segmentation'),
-            carla.Transform(carla.Location(x=-5.5, z=2.8), carla.Rotation(pitch=-15)),
+        rgb_sem = world.spawn_actor(
+            generate_rgb_sem_bp(world, blueprint_library),
+            carla.Transform(carla.Location(x=0, y=0.0, z=2.8), carla.Rotation(pitch=0, yaw=0.0, roll=0.0)),
             attach_to=vehicle)
-        actor_list.append(camera_semseg)
+        actor_list.append(rgb_sem)
 
         controller = KeyboardControl(vehicle)
         # Create a synchronous mode context.
-        with CarlaSyncMode(world, camera_rgb, camera_semseg, fps=30) as sync_mode:
+        with CarlaSyncMode(world, rgb_camera, rgb_sem, fps=30) as sync_mode:
             while True:
                 if should_quit():
                     return
                 clock.tick()
-
+                controller.parse_events(clock)
                 # Advance the simulation and wait for the data.
-                snapshot, image_rgb, image_semseg = sync_mode.tick(timeout=2.0)
+                snapshot, image_rgb, image_sem = sync_mode.tick(timeout=2.0)
+                image_sem.convert(carla.ColorConverter.CityScapesPalette)
 
-                image_semseg.convert(carla.ColorConverter.CityScapesPalette)
                 fps = round(1.0 / snapshot.timestamp.delta_seconds)
+                vehicle_velocity = get_speed(vehicle)
 
                 # Draw the display.
                 draw_image(display, image_rgb)
-                draw_image(display, image_semseg, blend=True)
-                display.blit(font.render('% 5d FPS (real)' % clock.get_fps(), True, (255, 255, 255)), (8, 10))
-                display.blit(font.render('% 5d FPS (simulated)' % fps, True, (255, 255, 255)), (8, 28))
+                draw_image(display, image_sem, blend=True)
+                display.blit(font.render('% 5d FPS (real)' % clock.get_fps(), True, (0, 0, 0)), (8, 10))
+                display.blit(font.render('% 5d FPS (simulated)' % fps, True, (0, 0, 0)), (8, 28))
+                display.blit(font.render('% 5d mk/h (velocity)' % vehicle_velocity, True, (0, 0, 0)), (8, 46))
                 pygame.display.flip()
 
     finally:
-
         print('destroying actors.')
         for actor in actor_list:
             actor.destroy()
@@ -85,4 +87,4 @@ if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
-        print('\nCancelled by user. Bye!')
+        print('\n Cancelled by user. Bye!')
