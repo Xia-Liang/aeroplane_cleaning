@@ -72,7 +72,7 @@ def carla_main():
         while True:
             if should_quit():
                 return
-            clock.tick(30)
+            clock.tick(60)
             # don't delete ! will crash if surface is None
             if not surface:
                 continue

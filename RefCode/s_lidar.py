@@ -1,19 +1,27 @@
 try:
     from config import *
     from manual_control import *
-    from display import *
 except ImportError:
-    raise RuntimeError('cannot import config file')
+    raise ImportError('cannot import config file')
 
-try:
-    from matplotlib import cm
-    import open3d as o3d
-    from datetime import datetime
-except ImportError:
-    raise RuntimeError('cannot import lidar necessary package')
 
-surface = None
+# RGB
+def process_rgb(rgb):
+    """
+    process the image, update surface in pygame
+    """
+    global surface
+    array = np.frombuffer(rgb.raw_data, dtype=np.dtype("uint8"))
+    array = np.reshape(array, (rgb.height, rgb.width, 4))
+    array = array[:, :, :3]
+    array = array[:, :, ::-1]  # switch r,g,b
+    array = array.swapaxes(0, 1)  # exchange the width and height
+    surface = pygame.surfarray.make_surface(array)  # Copy an array to a new surface
 
+    # rgb.save_to_disk('D:\\mb95541\\aeroplane\\data\\rgb\\%d' % rgb.frame)
+
+
+# sem-lidar vis
 VIRIDIS = np.array(cm.get_cmap('plasma').colors)
 VID_RANGE = np.linspace(0.0, 1.0, VIRIDIS.shape[0])
 LABEL_COLORS = np.array([
@@ -53,21 +61,6 @@ LABEL_COLORS = np.array([
     (255, 255, 51)  # CPcut_WingRight = 33u, light yellow
 ]) / 255.0  # normalize each channel [0-1] since is what Open3D uses
 
-
-# def process_img(image):
-#     """
-#     process the image
-#     """
-#     global surface
-#     array = np.frombuffer(image.raw_data, dtype=np.dtype("uint8"))
-#     array = np.reshape(array, (image.height, image.width, 4))
-#     array = array[:, :, :3]
-#     array = array[:, :, ::-1]  # switch r,g,b
-#     array = array.swapaxes(0, 1)  # exchange the width and height
-#     surface = pygame.surfarray.make_surface(array)  # Copy an array to a new surface
-#
-#     image_name = image.frame
-#     image.save_to_disk('D:\\mb95541\\aeroplane\\image\\%d' % image_name)
 
 def lidar_callback(point_cloud, point_list):
     """Prepares a point cloud with intensity colors ready to be consumed by Open3D"""
@@ -143,77 +136,74 @@ def add_open3d_axis(vis):
     vis.add_geometry(axis)
 
 
-def process_lidar(data):
-    pass
-
-
 def carla_main():
     # --- pygame show --- #
-    # pygame.init()
-    # display = pygame.display.set_mode((IMG_WIDTH, IMG_HEIGHT), pygame.HWSURFACE | pygame.DOUBLEBUF)
-    # font = get_font()
-    # clock = pygame.time.Clock()
+    pygame.init()
+    display = pygame.display.set_mode((IMG_WIDTH, IMG_HEIGHT), pygame.HWSURFACE | pygame.DOUBLEBUF)
+    font = get_font()
+    clock = pygame.time.Clock()
     try:
         # --- client --- #
         client = carla.Client('localhost', 2000)
         client.set_timeout(10.0)  # connect with server
 
-        # --- world --- #
+        # --- world and blueprint_library --- #
         world = client.get_world()
         settings = world.get_settings()
-        settings.synchronous_mode = False  # Disables synchronous mode
+        settings.synchronous_mode = False
         world.apply_settings(settings)
-
-        # --- weather --- #
-        # change weather params: carla.WeatherParameters  https://carla.readthedocs.io/en/0.9.3/python_api_tutorial/
-        # set_weather:  https://carla.readthedocs.io/en/0.9.3/python_api/#carlaweatherparameters
-        # world.set_weather(carla.WeatherParameters.ClearNoon)
-
-        # --- vehicle --- #
         blueprint_library = world.get_blueprint_library()
-        vehicle_bp = blueprint_library.filter('model3')[0]
-        # vehicle property  https://carla.readthedocs.io/en/0.9.3/python_api/#carlaactorblueprint
-        vehicle_bp.set_attribute('role_name', 'runner')
-        white = '255.0, 255.0, 255.0'
-        vehicle_bp.set_attribute('color', white)
+        # --- weather --- #
+        world.set_weather(carla.WeatherParameters.ClearNoon)
 
         # --- start point --- #
-        # spawn point
-        spawn_point = carla.Transform(carla.Location(x=280, y=315, z=3),
+        spawn_point = carla.Transform(carla.Location(x=260, y=315, z=3),
                                       carla.Rotation(pitch=0.000000, yaw=270.000, roll=0.000000))
         print('spawn_point:', spawn_point)
-        # generate the vehicle
+
+        # --- vehicle --- #
+        vehicle_bp = generate_vehicle_bp(world, blueprint_library)
         vehicle = world.spawn_actor(vehicle_bp, spawn_point)
-        print("vehicle is spawned!")
-        # set the physics Determines whether an actor will be affected by physics or not
         vehicle.set_simulate_physics(True)
         actor_list.append(vehicle)
 
+        # --- rgb-camera sensor --- #
+        rgb_camera_bp = generate_rgb_bp(world, blueprint_library)
+        rgb_spawn_point = carla.Transform(carla.Location(x=0.5, y=0.0, z=3),
+                                          carla.Rotation(pitch=0.0, yaw=0.0, roll=0.0))
+        rgb_camera = world.spawn_actor(rgb_camera_bp, rgb_spawn_point, attach_to=vehicle)
+        rgb_camera.listen(lambda data: process_rgb(data))
+        actor_list.append(rgb_camera)
+
+        # # --- rgb-sem sensor --- #
+        # rgb_sem_bp = generate_rgb_sem_bp(world, blueprint_library)
+        # rgb_sem_spawn_point = carla.Transform(carla.Location(x=0.5, y=0.0, z=3.5),
+        #                                       carla.Rotation(pitch=0.0, yaw=0.0, roll=0.0))
+        # rgb_sem = world.spawn_actor(rgb_sem_bp, rgb_sem_spawn_point, attach_to=vehicle)
+        # # https://carla.readthedocs.io/en/0.9.9/ref_code_recipes/, carla.ColorConverter.CityScapesPalette
+        # rgb_sem.listen(lambda data:
+        #                data.save_to_disk('D:\\mb95541\\aeroplane\\data\\rgbSem\\%d' % data.frame,
+        #                                  carla.ColorConverter.CityScapesPalette))
+        # actor_list.append(rgb_sem)
+
         # --- lidar sensor --- #
-        lidar_bp = blueprint_library.find('sensor.lidar.ray_cast_semantic')
-        lidar_bp.set_attribute("channels", "16")  # Number of lasers.
-        lidar_bp.set_attribute("range", "100.0")  # Maximum distance to measure/raycast in meters
-        lidar_bp.set_attribute("points_per_second", "36000")  # Points generated by all lasers per second. default 56000
-        lidar_bp.set_attribute("rotation_frequency", "10")  # Lidar rotation frequency. default 10
-        lidar_bp.set_attribute("upper_fov", "25")  # Angle in degrees of the highest laser.
-        lidar_bp.set_attribute("lower_fov", "-25")  # Angle in degrees of the lowest laser.
-        lidar_bp.set_attribute("sensor_tick", "0.0")  # Simulation seconds between sensor captures (ticks).
+        lidar_sem_bp = generate_lidar_sem_bp(world, blueprint_library)
 
         # add sensor to the vehicle, put the sensor in the car. rotation y x z
-        spawn_point = carla.Transform(carla.Location(x=0.5, y=0.0, z=3),
+        spawn_point = carla.Transform(carla.Location(x=0.5, y=0.0, z=2.5),
                                       carla.Rotation(pitch=0.0, yaw=0.0, roll=0.0))
-        lidar = world.spawn_actor(lidar_bp, spawn_point, attach_to=vehicle)
-        actor_list.append(lidar)
+        lidar_sem = world.spawn_actor(lidar_sem_bp, spawn_point, attach_to=vehicle)
+        actor_list.append(lidar_sem)
         # open3d setup
         point_list = o3d.geometry.PointCloud()
-        lidar.listen(lambda data: semantic_lidar_callback(data, point_list))
+        lidar_sem.listen(lambda data: semantic_lidar_callback(data, point_list))
 
         # open3d vis
         vis = o3d.visualization.Visualizer()
         vis.create_window(
             window_name='Carla Lidar',
-            width=960,
-            height=540,
+            width=IMG_WIDTH,
+            height=IMG_HEIGHT,
             left=480,
             top=270)
         vis.get_render_option().background_color = [0.05, 0.05, 0.05]
@@ -221,42 +211,32 @@ def carla_main():
         vis.get_render_option().show_coordinate_frame = True
         vis.add_geometry(point_list)
 
-        frame = 0
-        dt0 = datetime.now()
-
-        # controller = KeyboardControl(vehicle)
+        controller = KeyboardControl(vehicle)
         while True:
-            # if should_quit():
-            #     return
-            # clock.tick(30)
-
+            if should_quit():
+                return
+            clock.tick(60)
             # don't delete! Will crash if surface is None
             if not surface:
                 continue
-
             #  open3d display
             vis.update_geometry(point_list)
             vis.poll_events()
             vis.update_renderer()
             # # This can fix Open3D jittering issues:
             time.sleep(0.005)
-            dt0 = datetime.now()
-            frame += 1
 
-            # # pygame display
-            # controller.parse_events(clock)
-            # vehicle_velocity = get_speed(vehicle)
-            # # print(vehicle_velocity)
-            # display.blit(font.render('% 5d FPS (real)' % clock.get_fps(), True, (255, 255, 255)), (8, 10))
-            # display.blit(font.render('% 5d mk/h (velocity)' % vehicle_velocity, True, (0, 0, 0)), (8, 46))
-            # pygame.display.flip()
-            # display.blit(surface, (0, 0))
+            controller.parse_events(clock)
+            vehicle_velocity = get_speed(vehicle)
+            display.blit(font.render('% 5d mk/h (velocity)' % vehicle_velocity, True, (0, 0, 0)), (8, 10))
+            pygame.display.flip()
+            display.blit(surface, (0, 0))
 
     finally:
         print('destroying actors')
         for actor in actor_list:
             actor.destroy()
-        # pygame.quit()
+        pygame.quit()
         vis.destroy_window()
         print('done.')
 

@@ -23,7 +23,25 @@ def process_rgb(rgb):
     array = array.swapaxes(0, 1)  # exchange the width and height
     surface = pygame.surfarray.make_surface(array)  # Copy an array to a new surface
 
-    rgb.save_to_disk('D:\\mb95541\\aeroplane\\data\\rgb\\%d' % rgb.frame)
+    # rgb.save_to_disk('D:\\mb95541\\aeroplane\\data\\rgb\\%d' % rgb.frame)
+
+
+# def process_rgb_sem(rgb_sem):
+#
+#     """
+#     process the image, update surface in pygame
+#     """
+#     global surface
+#     rgb_sem.convert(carla.ColorConverter.CityScapesPalette)
+#
+#     array = np.frombuffer(rgb_sem.raw_data, dtype=np.dtype("uint8"))
+#     array = np.reshape(array, (rgb_sem.height, rgb_sem.width, 4))
+#     array = array[:, :, :3]
+#     array = array[:, :, ::-1]  # switch r,g,b
+#     array = array.swapaxes(0, 1)  # exchange the width and height
+#     surface = pygame.surfarray.make_surface(array)  # Copy an array to a new surface
+#
+#     # rgb_sem.save_to_disk('D:\\mb95541\\aeroplane\\data\\rgb_sem\\%d' % rgb_sem.frame)
 
 
 def carla_main():
@@ -40,14 +58,14 @@ def carla_main():
         # --- world and blueprint_library --- #
         world = client.get_world()
         settings = world.get_settings()
-        settings.synchronous_mode = False  # Disables synchronous mode
+        settings.synchronous_mode = False
         world.apply_settings(settings)
         blueprint_library = world.get_blueprint_library()
         # --- weather --- #
         world.set_weather(carla.WeatherParameters.ClearNoon)
 
         # --- start point --- #
-        spawn_point = carla.Transform(carla.Location(x=280, y=315, z=3),
+        spawn_point = carla.Transform(carla.Location(x=235, y=280, z=3),
                                       carla.Rotation(pitch=0.000000, yaw=270.000, roll=0.000000))
         print('spawn_point:', spawn_point)
 
@@ -83,7 +101,7 @@ def carla_main():
         while True:
             if should_quit():
                 return
-            clock.tick(30)
+            clock.tick(60)
             # don't delete ! will crash if surface is None
             if not surface:
                 continue
