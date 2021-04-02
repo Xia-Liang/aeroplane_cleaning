@@ -1,0 +1,72 @@
+{
+    "maps": [
+    ],
+    "props": [
+      {
+        "name": "CPcutCockpit",
+        "size": "medium",
+        "source": "C:\\carla0.9.11\\Import\\CPcut\\CPcutCockpit\\CPcutCockpit.fbx",
+        "tag": "CPcutCockpit"
+      },
+      {
+        "name": "CPcutDome",
+        "size": "small",
+        "source": "C:\\carla0.9.11\\Import\\CPcut\\CPcutDome\\CPcutDome.fbx",
+        "tag": "CPcutDome"
+      },
+      {
+        "name": "CPcutEmpennage",
+        "size": "big",
+        "source": "C:\\carla0.9.11\\Import\\CPcut\\CPcutEmpennage\\CPcutEmpennage.fbx",
+        "tag": "CPcutEmpennage"
+      },
+      {
+        "name": "CPcutEngineLeft",
+        "size": "medium",
+        "source": "C:\\carla0.9.11\\Import\\CPcut\\CPcutEngineLeft\\CPcutEngineLeft.fbx",
+        "tag": "CPcutEngineLeft"
+      },
+      {
+        "name": "CPcutEngineRight",
+        "size": "medium",
+        "source": "C:\\carla0.9.11\\Import\\CPcut\\CPcutEngineRight\\CPcutEngineRight.fbx",
+        "tag": "CPcutEngineRight"
+      },
+      {
+        "name": "CPcutGearFront",
+        "size": "medium",
+        "source": "C:\\carla0.9.11\\Import\\CPcut\\CPcutGearFront\\CPcutGearFront.fbx",
+        "tag": "CPcutGearFront"
+      },
+      {
+        "name": "CPcutGearLeft",
+        "size": "medium",
+        "source": "C:\\carla0.9.11\\Import\\CPcut\\CPcutGearLeft\\CPcutGearLeft.fbx",
+        "tag": "CPcutGearLeft"
+      },
+      {
+        "name": "CPcutGearRight",
+        "size": "medium",
+        "source": "C:\\carla0.9.11\\Import\\CPcut\\CPcutGearRight\\CPcutGearRight.fbx",
+        "tag": "CPcutGearRight"
+      },
+      {
+        "name": "CPcutMainBody",
+        "size": "huge",
+        "source": "C:\\carla0.9.11\\Import\\CPcut\\CPcutMainBody\\CPcutMainBody.fbx",
+        "tag": "CPcutMainBody"
+      },
+      {
+        "name": "CPcutWingLeft",
+        "size": "small",
+        "source": "C:\\carla0.9.11\\Import\\CPcut\\CPcutWingLeft\\CPcutWingLeft.fbx",
+        "tag": "CPcutWingLeft"
+      },
+      {
+        "name": "CPcutWingRight",
+        "size": "small",
+        "source": "C:\\carla0.9.11\\Import\\CPcut\\CPcutWingRight\\CPcutWingRight.fbx",
+        "tag": "CPcutWingRight"
+      }
+    ]
+  }

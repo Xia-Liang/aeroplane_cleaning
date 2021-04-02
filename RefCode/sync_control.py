@@ -1,5 +1,12 @@
-# https://www.gameres.com/331290.html
-# fps in client and server
+"""
+first edition for sync mode control
+
+rgb and rgb_sem sensor
+
+overlay display in pygame window
+
+not saving
+"""
 try:
     from config import *
     from config_control import *
@@ -16,7 +23,7 @@ def draw_image(surface, image, blend=False):
     # https://www.pygame.org/docs/ref/surface.html?highlight=set_alpha#pygame.Surface.set_alpha
     # The alpha value is an integer from 0 to 255, 0 is fully transparent and 255 is fully opaque.
     if blend:
-        image_surface.set_alpha(100)
+        image_surface.set_alpha(200)
     surface.blit(image_surface, (0, 0))
 
 

@@ -1,7 +1,7 @@
 """
-Welcome to CARLA manual control.
+CARLA manual control.
 
-Use ARROWS or WASD keys for control.
+Use WASD keys for control.
 
     W            : throttle
     S            : brake

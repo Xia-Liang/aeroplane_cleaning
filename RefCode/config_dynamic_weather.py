@@ -1,11 +1,3 @@
-#!/usr/bin/env python
-
-# Copyright (c) 2019 Computer Vision Center (CVC) at the Universitat Autonoma de
-# Barcelona (UAB).
-#
-# This work is licensed under the terms of the MIT license.
-# For a copy, see <https://opensource.org/licenses/MIT>.
-
 """
 CARLA Dynamic Weather:
 
@@ -14,12 +6,10 @@ position smoothly with time and generate storms occasionally.
 """
 
 
-import glob
-import os
-import sys
-import carla
-import argparse
-import math
+try:
+    from config import *
+except ImportError:
+    raise ImportError('cannot import config file')
 
 
 def clamp(value, minimum=0.0, maximum=100.0):

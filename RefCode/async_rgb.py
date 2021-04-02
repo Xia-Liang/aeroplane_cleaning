@@ -47,7 +47,7 @@ def carla_main():
         world.set_weather(carla.WeatherParameters.ClearNoon)
 
         # --- start point --- #
-        spawn_point = carla.Transform(carla.Location(x=280, y=315, z=3),
+        spawn_point = carla.Transform(carla.Location(x=250, y=275, z=3),
                                       carla.Rotation(pitch=0.000000, yaw=270.000, roll=0.000000))
         print('spawn_point:', spawn_point)
 

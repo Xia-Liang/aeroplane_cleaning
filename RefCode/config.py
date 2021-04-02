@@ -1,14 +1,18 @@
+"""
+Import necessary package for carla; pygame for control; related package for vis
+
+Define vis width * height, font, keyboard interrupt
+
+Define func to generate sensors' blueprint
+
+Define CarlaSyncMode for sync mode
+
+"""
 import glob
 import os
 import sys
 import re
 
-# fix carla error bug
-# try:
-#     sys.path.append(glob.glob('PythonAPI')[0])
-# except ImportError:
-#     raise ImportError('cannot import carla PythonAPI')
-#
 
 try:
     sys.path.append(glob.glob('C:\\carla0.9.11\\PythonAPI\\carla\\dist\\carla-*%d.%d-%s.egg' % (
@@ -43,7 +47,7 @@ try:
     import logging
     import argparse
 except ImportError:
-    raise ImportError('cannot import carla reference package')
+    raise ImportError('cannot import carla abandoned package')
 
 
 try:
