@@ -23,7 +23,7 @@ def process_rgb(rgb):
     array = array.swapaxes(0, 1)  # exchange the width and height
     surface = pygame.surfarray.make_surface(array)  # Copy an array to a new surface
 
-    # rgb.save_to_disk('D:\\mb95541\\aeroplane\\data\\rgb\\%d' % rgb.frame)
+    rgb.save_to_disk('D:\\mb95541\\aeroplane\\data\\rgb\\%d' % rgb.frame)
 
 
 def process_rgb_sem(rgb_sem):
@@ -41,7 +41,7 @@ def process_rgb_sem(rgb_sem):
     array = array.swapaxes(0, 1)  # exchange the width and height
     surface = pygame.surfarray.make_surface(array)  # Copy an array to a new surface
 
-    # rgb_sem.save_to_disk('D:\\mb95541\\aeroplane\\data\\rgb_sem\\%d' % rgb_sem.frame)
+    # rgb_sem.save_to_disk('D:\\mb95541\\aeroplane\\data\\rgbSem\\%d' % rgb_sem.frame)
 
 
 def carla_main():
