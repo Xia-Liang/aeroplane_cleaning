@@ -24,6 +24,7 @@
 | 03.31 | Temporarily solved Bug0327 with a lot of re-install and re-build <br> Add sensors together | Bug: Huge frame number difference |
 | 04.01 | Switch to sync mode <br> Add toggle reverse KEY in manual control |  Initially solved Bug0331 |
 | 04.02 | Can't control car with open3d vis <br> Solve Bug0331 <br> Done Todo0402: Tags are right, Successfully save lidar data | Test if added tags are right (new empty map) <br> Save lidar data to disk <br> <font color=red>Switch sensor in Pygame window, not necessary</font> |
+| 04.08 | Solving env of ubuntu | |
 
 
 # What I could add in project report
