@@ -26,6 +26,7 @@
 | ~04.02 | Can't control car with open3d vis <br> Solve Bug0331 <br> Done Todo0402: Tags are right, Successfully save lidar data | Test if added tags are right (new empty map) <br> Save lidar data to disk <br> <font color=red>Switch sensor in Pygame window, not necessary</font> |
 | ~04.08 | Solving env of ubuntu | |
 | ~04.15 | Data prepare and preprocessing <br> Change saving data's naming rules | |
+| ~04.19 | Data Training <br> Re-construct the file | <font color=red> Project lidar point to pygame OR Some other visualization</font> |
 
 
 # What I could add in project report
