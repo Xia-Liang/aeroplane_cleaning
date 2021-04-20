@@ -1,11 +1,20 @@
 # aeroplane_cleaning
 
 * Final project in UM Data Science.
+* Measure distance to each part of an aircraft
+* Use Carla and UE4 to generate data
+* Use PointNet to do 3D segmentation
+* Get the distance and vis it in UE4
+
+# File Structure
+
 * Put `CPcut` folder in `carla\Import` and rebuild
   * [Carla add semantic tags](https://carla.readthedocs.io/en/0.9.11/tuto_D_create_semantic_tags/)
   * [Carla add new props](https://carla.readthedocs.io/en/0.9.11/tuto_A_add_props/)
-* Put `RefCode` folder in `carla\PythonAPI`
+* `DataGenerator` to get data using Carla
   * `test*.py` used only in carla official map for testing 
+* `DataPreprocess` to deal with raw data
+* `DataTraining` to train a segmentation model
 
 # what we have done
 
@@ -27,11 +36,6 @@
 | ~04.08 | Solving env of ubuntu | |
 | ~04.15 | Data prepare and preprocessing <br> Change saving data's naming rules | |
 | ~04.19 | Data Training <br> Re-construct the file | <font color=red> Project lidar point to pygame OR Some other visualization</font> |
-
-
-# What I could add in project report
-
-* 3D sem lidar figure
 
 
 # Some useful link
