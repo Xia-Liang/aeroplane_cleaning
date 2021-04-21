@@ -131,7 +131,7 @@ class PointNetfeat(nn.Module):
 
 
 class PointNetDenseCls(nn.Module):
-    def __init__(self, k=2, feature_transform=False):
+    def __init__(self, k=13, feature_transform=False):
         super(PointNetDenseCls, self).__init__()
         self.k = k
         self.feature_transform = feature_transform

@@ -51,9 +51,9 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--vehicle_drop_percent', type=float, default=0.7, help='% of point of vehicle will be deleted')
-parser.add_argument('--scene_drop_percent', type=float, default=0.5, help='% of point of scene will be deleted')
+parser.add_argument('--scene_drop_percent', type=float, default=0.7, help='% of point of scene will be deleted')
 parser.add_argument('--min_data_lines', type=int, default=6000, help='min number of points per file')
-parser.add_argument('--min_valid_data', type=int, default=50, help='min valid data')
+parser.add_argument('--min_valid_data', type=int, default=20, help='min valid data')
 parser.add_argument('--debug_mode', type=bool, default=False)
 
 opt = parser.parse_args()

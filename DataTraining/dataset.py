@@ -13,7 +13,7 @@ from plyfile import PlyData, PlyElement
 class AirplaneDataset(data.Dataset):
     def __init__(self,
                  root,
-                 n_points=1500,
+                 n_points=6000,
                  # split='train',
                  data_augmentation=True):
         self.n_points = n_points
@@ -22,8 +22,7 @@ class AirplaneDataset(data.Dataset):
 
         # global_segmentation, a dict of { (plane seg, corresponding class num) }
         self.global_segmentation = {}
-        with open(os.path.join(self.root, 'airplaneCategory.txt'),
-                  'r') as f:
+        with open(os.path.join(self.root, 'airplaneCategory.txt'), 'r') as f:
             for line in f:
                 ls = line.strip().split()
                 self.global_segmentation[ls[0]] = ls[1]
@@ -67,13 +66,8 @@ class AirplaneDataset(data.Dataset):
         return len(self.data_path)
 
 
-
 if __name__ == '__main__':
-    dataset = 'shapenet'
-    data_path = 'data'
-
-    if dataset == 'shapenet':
-        d = AirplaneDataset(root=data_path)
-        print(len(d))
-        ps, seg = d[0]
-        print(ps.size(), ps.type(), seg.size(), seg.type())
+    d = AirplaneDataset(root='data')
+    print('there are ', len(d), ' files in path')
+    ps, seg = d[0]
+    print(ps.size(), ps.type(), seg.size(), seg.type())
