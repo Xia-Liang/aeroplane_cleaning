@@ -15,6 +15,7 @@
   * `test*.py` used only in carla official map for testing 
 * `DataPreprocess` to deal with raw data
 * `DataTraining` to train a segmentation model
+* 
 
 # what we have done
 
@@ -36,6 +37,7 @@
 | ~04.08 | Solving env of ubuntu | |
 | ~04.15 | Data prepare and preprocessing <br> Change saving data's naming rules | |
 | ~04.19 | Data Training <br> Re-construct the file | <font color=red> Project lidar point to pygame OR Some other visualization</font> |
+| ~04.22 | Training model reach to 94% acc | |
 
 
 # Some useful link
