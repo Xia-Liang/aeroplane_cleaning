@@ -20,7 +20,7 @@ parser.add_argument('--dataset', type=str, default='data', help="dataset path")
 parser.add_argument('--feature_transform', action='store_true', help="use feature transform")
 parser.add_argument('--workers', type=int, help='number of data loading workers', default=4)
 parser.add_argument('--batchSize', type=int, default=8, help='input batch size')
-parser.add_argument('--nepoch', type=int, default=10, help='number of epochs to train for')
+parser.add_argument('--nepoch', type=int, default=500, help='number of epochs to train for')
 parser.add_argument('--npoints', type=int, default=6000, help='num of points of each file')
 parser.add_argument('--outf', type=str, default='seg', help='model output folder')
 # basic info of parser
@@ -76,6 +76,8 @@ writer = SummaryWriter('run')
 # --------------------------------------------------------------------------------------------------------------
 
 # training
+max_acc_train = 0
+max_acc_test = 0
 for epoch in range(opt.nepoch):
     total_train_loss = 0
     total_test_loss = 0
@@ -84,6 +86,8 @@ for epoch in range(opt.nepoch):
 
     optimizer.step()
     scheduler.step()
+
+    # train
     for i, data in enumerate(train_loader, 0):
         # points (batch size, num of points, (xyz)); target (batch size, num of points, target)
         points, target = data
@@ -110,40 +114,51 @@ for epoch in range(opt.nepoch):
         # pred.data.max(1)[1] return index of max value, which represents class
         pred_choice = pred.data.max(1)[1]
         correct = pred_choice.eq(target.data).cpu().sum()
-        print('[%d epoch: %d batch/%d total] train loss: %f accuracy: %f' %
-              (epoch, i, num_batch, loss.item(), correct.item() / float(opt.batchSize * opt.npoints)))
+        if i % 10 == 0:
+            print('[%d epoch: %d-th batch/%d total] train loss: %f accuracy: %f' %
+                  (epoch, i, num_batch, loss.item(), correct.item() / float(opt.batchSize * opt.npoints)))
         total_train_loss += loss.item()
         total_train_correct += correct.item()
 
-    if epoch % 5 == 0:
-        for j, data in enumerate(test_loader, 0):
-            points, target = data
-            points = points.transpose(2, 1)
-            points, target = points.cuda(), target.cuda()
-            classifier = classifier.eval()
-            pred, _, _ = classifier(points)
-            pred = pred.view(-1, num_classes)
-            target = target.view(-1, 1)[:, 0]
-            loss = F.nll_loss(pred, target)
-            pred_choice = pred.data.max(1)[1]
+    # test
+    for j, data in enumerate(test_loader, 0):
+        points, target = data
+        points = points.transpose(2, 1)
+        points, target = points.cuda(), target.cuda()
+        classifier = classifier.eval()
+        pred, _, _ = classifier(points)
+        pred = pred.view(-1, num_classes)
+        target = target.view(-1, 1)[:, 0]
+        loss = F.nll_loss(pred, target)
+        pred_choice = pred.data.max(1)[1]
 
-            # # for debuging
-            # cpu_pred = pred_choice.cpu().numpy()
-            # cpu_tar = target.data.cpu().numpy()
-            # with open('debug/pred_tar.txt','w') as f:
-            #     for tt in range(len(cpu_pred)):
-            #         f.write(str(cpu_pred[tt]) + '  ' + str(cpu_tar[tt]) + '\n')
-            correct = pred_choice.eq(target.data).cpu().sum()
-            print('[%d epoch: %d batch/%d total] %s loss: %f accuracy: %f' %
-                  (epoch, i, num_batch, blue('test'), loss.item(), correct.item() / float(opt.batchSize * opt.npoints)))
-            total_test_loss += loss.item()
-            total_test_correct += correct.item()
+        # # for debuging
+        # cpu_pred = pred_choice.cpu().numpy()
+        # cpu_tar = target.data.cpu().numpy()
+        # with open('debug/pred_tar.txt','w') as f:
+        #     for tt in range(len(cpu_pred)):
+        #         f.write(str(cpu_pred[tt]) + '  ' + str(cpu_tar[tt]) + '\n')
+        correct = pred_choice.eq(target.data).cpu().sum()
+        total_test_loss += loss.item()
+        total_test_correct += correct.item()
+    print('[%d epoch %s]  loss: %f accuracy: %f' %
+          (epoch, blue('test'), total_test_loss, total_test_correct / len(test_dataset) / opt.npoints))
+
+    acc_train = total_train_correct / opt.npoints / len(train_dataset)
+    acc_test = total_test_correct / opt.npoints / len(test_dataset)
 
     writer.add_scalar('Loss/train', total_train_loss, epoch)
     writer.add_scalar('Loss/test', total_test_loss, epoch)
-    writer.add_scalar('Acc/train', total_train_correct / opt.npoints / len(train_dataset), epoch)
-    writer.add_scalar('Acc/test', total_test_correct / opt.npoints / len(test_dataset), epoch)
-    torch.save(classifier.state_dict(), '%s/seg_model_%d.pth' % (opt.outf, epoch))
+    writer.add_scalar('Acc/train', acc_train, epoch)
+    writer.add_scalar('Acc/test', acc_test, epoch)
+
+    if epoch > 75:
+        if epoch % 5 == 0 and acc_train > 0.9 and acc_test > 0.85:
+            torch.save(classifier.state_dict(), '%s/seg_model_%d.pth' % (opt.outf, epoch))
+        elif acc_train >= max_acc_train and acc_test >= max_acc_test:
+            max_acc_train = acc_train
+            max_acc_test = acc_test
+            torch.save(classifier.state_dict(), '%s/seg_model_%d_best.pth' % (opt.outf, epoch))
 
 # --------------------------------------------------------------------------------------------------------------
 '''
