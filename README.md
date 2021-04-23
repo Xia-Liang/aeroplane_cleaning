@@ -38,6 +38,7 @@
 | ~04.15 | Data prepare and preprocessing <br> Change saving data's naming rules | |
 | ~04.19 | Data Training <br> Re-construct the file | <font color=red> Project lidar point to pygame OR Some other visualization</font> |
 | ~04.22 | Training model reach to 94% acc | |
+| ~04.23 | | 3D projection <br> Real-time projection <br> Real-time segmentation <br> Distance calculation |
 
 
 # Some useful link
