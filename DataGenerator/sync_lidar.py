@@ -160,14 +160,14 @@ def main():
                 clock.tick()
                 controller.parse_events(clock)
                 # Advance the simulation and wait for the data.
-                snapshot, image_rgb, lidar_sem = sync_mode.tick(timeout=2.0)
+                snapshot, image_data, lidar_data = sync_mode.tick(timeout=2.0)
 
                 fps = round(1.0 / snapshot.timestamp.delta_seconds)
                 vehicle_velocity = get_speed(vehicle)
 
                 # Draw the display.
-                draw_image(display, image_rgb)
-                save_lidar(lidar_sem)
+                draw_image(display, image_data)
+                save_lidar(lidar_data)
                 display.blit(font.render('% 5d FPS (real)' % clock.get_fps(), True, (0, 0, 0)), (8, 10))
                 display.blit(font.render('% 5d FPS (simulated)' % fps, True, (0, 0, 0)), (8, 28))
                 display.blit(font.render('% 5d mk/h (velocity)' % vehicle_velocity, True, (0, 0, 0)), (8, 46))
