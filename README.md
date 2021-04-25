@@ -37,9 +37,20 @@
 | ~04.08 | Solving env of ubuntu | |
 | ~04.15 | Data prepare and preprocessing <br> Change saving data's naming rules | |
 | ~04.19 | Data Training <br> Re-construct the file | <font color=red> Project lidar point to pygame OR Some other visualization</font> |
-| ~04.22 | Training model reach to 94% acc | |
+| ~04.22 | Training model reach to 94% acc using [PointNet](https://arxiv.org/abs/1612.00593) | |
 | ~04.23 | | 3D projection <br> Real-time projection <br> Real-time segmentation <br> Distance calculation |
+| ~04.25 | Done Todo0423: 3D projection, Real-time saving | |
 
+
+# what we can't do and reason
+
+* Semmantic rgb camera
+  * some bugs in carla `carla.ColorConverter.CityScapesPalette`, see `dirty works` at end of readme.md
+* Real-time bounding box
+  * In yolo3, there exists a way of generating bounding box, it uses point clustering method
+  * But in this work, the plane model is connected, clustering is not a good idea to do segmentation
+  * So we use [PointNet](https://arxiv.org/abs/1612.00593)
+  * After we get the tags of each point, we still can't generate good real-time bounding box. Since lidar is set to be 10Hz and the simulator has unstable frames 30~60Hz, that means for each frame in pygame, we may or may not get lidar point information. And this will crash the client.
 
 # Some useful link
 
