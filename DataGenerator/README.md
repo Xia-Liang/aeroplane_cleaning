@@ -1,4 +1,5 @@
 * `config*` file to import necessary lib abd add basic attribute
-* collect sem lidar data, run `sync_lidar.py`
-* collect rgb / semRgb data, run `sync_rgb.py`
-* `lidar_sem_3Dvis.py` only for vis, can't control the car, and will also make UE4 to crash
+* collect sem lidar data and rgb `sync_rgb.py`
+* collect training set data `trainset_sem_lidar.py`
+* collect test set data `testset_lidar.py`
+* `open3d_lidar.py` only for vis `lidar2camera` only for vis and saving, can't control the car

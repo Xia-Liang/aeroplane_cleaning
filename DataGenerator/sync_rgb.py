@@ -1,5 +1,5 @@
 """
-sync
+sync, basic attempt
 
 rgb and rgb semantic sensor
 

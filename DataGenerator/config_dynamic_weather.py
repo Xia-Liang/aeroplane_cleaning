@@ -102,7 +102,7 @@ def main():
     argparser.add_argument(
         '-s', '--speed',
         metavar='FACTOR',
-        default=1.0,
+        default=200.0,
         type=float,
         help='rate at which the weather changes (default: 1.0)')
     args = argparser.parse_args()

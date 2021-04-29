@@ -1,9 +1,9 @@
 """
-sync
+generate data for testset
 
-lidar and lidar semantic sensor
+use lidar, no sem-lidar
 
-saving data
+need to update
 
 """
 
@@ -30,7 +30,7 @@ except ImportError:
 
 
 try:
-    from model import PointNetDenseCls
+    from model.model import PointNetDenseCls
     import torch
 except ImportError:
     raise ImportError('cannot import model')
@@ -146,7 +146,7 @@ def main():
     #                               carla.Rotation(pitch=0.000000, yaw=270.000, roll=0.000000))
     spawn_point = carla.Transform(carla.Location(x=260, y=315, z=3),
                                   carla.Rotation(pitch=0.000000, yaw=270.000, roll=0.000000))
-    vehicle = world.spawn_actor(blueprint_library.filter('tesla')[1], spawn_point)
+    vehicle = world.spawn_actor(blueprint_library.filter('mercedesccc')[0], spawn_point)
     vehicle.set_simulate_physics(True)
     actor_list.append(vehicle)
 
