@@ -40,6 +40,7 @@
 | ~04.22 | Training model reach to 94% acc using [PointNet](https://arxiv.org/abs/1612.00593) | |
 | ~04.23 | | 3D projection <br> Real-time projection <br> Real-time segmentation <br> Distance calculation |
 | ~04.25 | Done Todo0423: 3D projection, Real-time saving | |
+| ~04.29 | Get test dataset, Failed | <font color=red>Failed</font> |
 
 
 # what we can't do and reason
