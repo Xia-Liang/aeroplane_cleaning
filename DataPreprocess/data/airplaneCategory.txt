@@ -1,4 +1,4 @@
-None 0
+env 0
 CPcutCockpit 1
 CPcutDome 2
 CPcutEmpennage 3
