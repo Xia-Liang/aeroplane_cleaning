@@ -1,0 +1,42 @@
+{
+  "maps": [
+  ],
+  "props": [
+    {
+      "name": "AirplaneFrontCabin",
+      "size": "big",
+      "source": "C:\\carla0.9.11\\Import\\Airplane\\AirplaneFrontCabin\\AirplaneFrontCabin.fbx",
+      "tag": "AirplaneCockpit"
+    },
+    {
+      "name": "AirplaneRearCabin",
+      "size": "big",
+      "source": "C:\\carla0.9.11\\Import\\Airplane\\AirplaneRearCabin\\AirplaneRearCabin.fbx",
+      "tag": "AirplaneRearCabin"
+    },
+    {
+      "name": "AirplaneTail",
+      "size": "big",
+      "source": "C:\\carla0.9.11\\Import\\Airplane\\AirplaneTail\\AirplaneTail.fbx",
+      "tag": "AirplaneTail"
+    },
+    {
+      "name": "AirplaneEngine",
+      "size": "big",
+      "source": "C:\\carla0.9.11\\Import\\Airplane\\AirplaneEngine\\AirplaneEngine.fbx",
+      "tag": "AirplaneEngine"
+    },
+    {
+      "name": "AirplaneWing",
+      "size": "big",
+      "source": "C:\\carla0.9.11\\Import\\Airplane\\AirplaneWing\\AirplaneWing.fbx",
+      "tag": "AirplaneWing"
+    },
+    {
+      "name": "AirplaneWheel",
+      "size": "medium",
+      "source": "C:\\carla0.9.11\\Import\\Airplane\\AirplaneWheel\\AirplaneWheel.fbx",
+      "tag": "AirplaneWheel"
+    }
+  ]
+}
