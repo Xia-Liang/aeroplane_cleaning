@@ -101,7 +101,7 @@ for epoch in range(opt.nepoch):
         # extend ( batch size * num of points, num of target class)
         pred = pred.view(-1, num_classes)
 
-        target = target.view(-1, 1)[:, 0]  # no need to -1, since ground truth is 0~11
+        target = target.view(-1, 1)[:, 0]  # no need to -1, since ground truth is 0~12
         # print(pred.size(), target.size())
         loss = F.nll_loss(pred, target)
         if opt.feature_transform:

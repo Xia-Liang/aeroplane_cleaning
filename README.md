@@ -76,6 +76,7 @@
 * make
   * re-make when you changed .cpp .h file in carla (user defined tags and color palette)
   * make clean
+  * remember to add .egg file
   * make PythonAPI
   * make Import
   * make LibCarla
