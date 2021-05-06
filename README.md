@@ -8,14 +8,12 @@
 
 # File Structure
 
-* Put `CPcut` folder in `carla\Import` and rebuild
+* Put `CPcut` or `Airplane` folder in `carla\Import` and rebuild
   * [Carla add semantic tags](https://carla.readthedocs.io/en/0.9.11/tuto_D_create_semantic_tags/)
   * [Carla add new props](https://carla.readthedocs.io/en/0.9.11/tuto_A_add_props/)
-* `DataGenerator` to get data using Carla
-  * `test*.py` used only in carla official map for testing 
-* `DataPreprocess` to deal with raw data
-* `DataTraining` to train a segmentation model
-* 
+* `data_generator` to get data using Carla on windows10
+* `data_preprocess_training` to deal with raw data and train segmentation model on Linux
+
 
 # what we have done
 
@@ -41,17 +39,16 @@
 | ~04.23 | | 3D projection <br> Real-time projection <br> Real-time segmentation <br> Distance calculation |
 | ~04.25 | Done Todo0423: 3D projection, Real-time saving | |
 | ~04.29 | Get test dataset, Failed | <font color=red>Failed</font> |
+| ~05.06 | Re-cut the plane to get data more uniformed <br> Another attempt |
 
 
 # what we can't do and reason
 
-* Semmantic rgb camera
-  * some bugs in carla `carla.ColorConverter.CityScapesPalette`, see `dirty works` at end of readme.md
 * Real-time bounding box
   * In yolo3, there exists a way of generating bounding box, it uses point clustering method
   * But in this work, the plane model is connected, clustering is not a good idea to do segmentation
   * So we use [PointNet](https://arxiv.org/abs/1612.00593)
-  * After we get the tags of each point, we still can't generate good real-time bounding box. Since lidar is set to be 10Hz and the simulator has unstable frames 30~60Hz, that means for each frame in pygame, we may or may not get lidar point information. And this will crash the client.
+  * After we get the tags of each point, we still can't generate good real-time bounding box. Since lidar is set to be 10Hz and the simulator has unstable frames 30~60Hz.
 
 # Some useful link
 
@@ -81,7 +78,7 @@
   * make Import
   * make LibCarla
 
-* System bug in `carla.ColorConverter.CityScapesPalette`
+* <font color=red> Solved, no bug </font> System bug in `carla.ColorConverter.CityScapesPalette`
   * Things go right when add user defined tags, see [Carla add semantic tags](https://carla.readthedocs.io/en/0.9.11/tuto_D_create_semantic_tags/) and [Carla add new props](https://carla.readthedocs.io/en/0.9.11/tuto_A_add_props/)
   * But failed to converte the color in version 0.9.11
   * Could get right tags according to `abandoned\check_defined_tag.py`

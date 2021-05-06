@@ -1,0 +1,12 @@
+env 0
+CPcutCockpit 1
+CPcutDome 2
+CPcutEmpennage 3
+CPcutEngineLeft 4
+CPcutEngineRight 5
+CPcutGearFront 6
+CPcutGearLeft 7
+CPcutGearRight 8
+CPcutMainBody 9
+CPcutWingLeft 10
+CPcutWingRight 11
