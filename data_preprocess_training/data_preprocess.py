@@ -21,28 +21,29 @@ in ObjectLabel.h, user defined tags
         CPcutMainBody = 31u,
         CPcutWingLeft = 32u,
         CPcutWingRight = 33u,
+        AirplaneFrontCabin = 34u,
+        AirplaneRearCabin = 35u,
+        AirplaneTail = 36u,
+        AirplaneWing = 37u,
+        AirplaneEngine = 38u,
+        AirplaneWheel = 39u,
     };
 
 write xyz data into points folder
 
 write tags data into labels folder
     turn tags to 0 for other object
-    1~11 for airplane segments
+    1~6 for airplane segments
 
-write tags data, 12 class
+write tags data, 7 class
 
     None, vehicle, others = 0
-    CPcutCockpit        = 1
-    CPcutDome           = 2
-    CPcutEmpennage      = 3
-    CPcutEngineLeft     = 4
-    CPcutEngineRight    = 5
-    CPcutGearFront      = 6
-    CPcutGearLeft       = 7
-    CPcutGearRight      = 8
-    CPcutMainBody       = 9
-    CPcutWingLeft       = 10
-    CPcutWingRight      = 11
+    AirplaneFrontCabin        = 1
+    AirplaneRearCabin           = 2
+    AirplaneTail      = 3
+    AirplaneWing     = 4
+    AirplaneEngine    = 5
+    AirplaneWheel      = 6
 """
 
 import os
@@ -76,7 +77,7 @@ for i, file in enumerate(file_list):
     raw_data = np.load(os.path.join(raw_data_path, file))  # xyz, tag
 
     # generate airplane tags from 1~11
-    raw_data[:, 3] = raw_data[:, 3] - 22
+    raw_data[:, 3] = raw_data[:, 3] - 33
     raw_data[raw_data[:, 3] < 0] = 0
 
     # if data.shape[0] < 4500, multi itself until 4500

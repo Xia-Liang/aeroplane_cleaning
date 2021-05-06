@@ -131,7 +131,7 @@ class PointNetfeat(nn.Module):
 
 
 class PointNetDenseCls(nn.Module):
-    def __init__(self, k=13, feature_transform=False):
+    def __init__(self, k=7, feature_transform=False):
         super(PointNetDenseCls, self).__init__()
         self.k = k
         self.feature_transform = feature_transform
@@ -168,6 +168,7 @@ def feature_transform_regularizer(trans):
     return loss
 
 
+# only used for main test
 def feature_transform_regularizer_test(trans):
     d = trans.size()[1]
     batchsize = trans.size()[0]
@@ -202,6 +203,6 @@ if __name__ == '__main__':
     out, _, _ = pointfeat(sim_data) # out (32, 64+1024, 2500)
     print('point feat', out.size())
 
-    seg = PointNetDenseCls(k=12)  # k classes
+    seg = PointNetDenseCls(k=7)  # k classes
     out, seg_trans, seg_trans_feat = seg(sim_data)
     print('seg', out.size())
