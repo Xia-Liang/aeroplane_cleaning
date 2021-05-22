@@ -56,20 +56,14 @@ import argparse
 parser = argparse.ArgumentParser()
 # parser.add_argument('--mainbody_drop_rate', type=float, default=0.4)
 parser.add_argument('--min_points', type=int, default=4500, help='min number of points per file')
-parser.add_argument('--debug_mode', type=bool, default=False)
+
 
 opt = parser.parse_args()
 print(opt)
 
-
-if opt.debug_mode:
-    root_path = os.path.join('data', 'debug')
-    raw_data_path = os.path.join(root_path, 'raw_data')
-    train_data_path = os.path.join(root_path, 'train')
-else:
-    root_path = os.path.join('data')
-    raw_data_path = os.path.join(root_path, 'raw_data')
-    train_data_path = os.path.join(root_path, 'train')
+root_path = os.path.join('data')
+raw_data_path = os.path.join(root_path, 'raw_data')
+train_data_path = os.path.join(root_path, 'train')
 
 file_list = os.listdir(raw_data_path)
 
