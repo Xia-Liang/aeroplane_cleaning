@@ -41,26 +41,35 @@ except OSError:
 
 # --------------------------------------------------------------------------------------------------------------
 
-dataset0 = AirplaneDataset(data_root=opt.dataset,
+dataset = AirplaneDataset(data_root=opt.dataset,
                            train_folder='train',
                            n_points=opt.npoints,
                            data_augmentation=True)
-dataset1 = AirplaneDataset(data_root=opt.dataset,
-                           train_folder='train',
-                           n_points=opt.npoints,
-                           data_augmentation=True)
-dataset2 = AirplaneDataset(data_root=opt.dataset,
-                           train_folder='train',
-                           n_points=opt.npoints,
-                           data_augmentation=True)
-dataset = torch.utils.data.ConcatDataset([dataset0, dataset1, dataset2])
+
+# dataset0 = AirplaneDataset(data_root=opt.dataset,
+#                            train_folder='train',
+#                            n_points=opt.npoints,
+#                            data_augmentation=True)
+# dataset1 = AirplaneDataset(data_root=opt.dataset,
+#                            train_folder='train',
+#                            n_points=opt.npoints,
+#                            data_augmentation=True)
+# dataset2 = AirplaneDataset(data_root=opt.dataset,
+#                            train_folder='train',
+#                            n_points=opt.npoints,
+#                            data_augmentation=True)
+# dataset3 = AirplaneDataset(data_root=opt.dataset,
+#                            train_folder='train',
+#                            n_points=opt.npoints,
+#                            data_augmentation=True)
+# dataset = torch.utils.data.ConcatDataset([dataset0, dataset1])
 
 # print basic info, set classifier, optimizer and sheduler
-num_classes = len(dataset0.global_segmentation)
+num_classes = len(dataset.global_segmentation)
 print('classes', num_classes)
-print(dataset0.global_segmentation)
-print('length of single dataset: ', len(dataset0))
-print('length of concat dataset: ', len(dataset))
+# print(dataset0.global_segmentation)
+# print('length of single dataset: ', len(dataset0))
+# print('length of concat dataset: ', len(dataset))
 classifier = PointNetDenseCls(k=num_classes, feature_transform=opt.feature_transform)
 optimizer = optim.Adam(classifier.parameters(), lr=0.001, betas=(0.9, 0.999))  # Stochastic Optimization
 scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.5)  # adjust the learning rate
@@ -167,13 +176,12 @@ for epoch in range(opt.nepoch):
     writer.add_scalar('Acc/train', acc_train, epoch)
     writer.add_scalar('Acc/valid', acc_valid, epoch)
 
-    if epoch > 75:
-        if epoch % 5 == 0 and acc_train > 0.8 and acc_valid > 0.8:
-            torch.save(classifier.state_dict(), '%s/seg_model_%d.pth' % (opt.outf, epoch))
-        elif acc_train >= max_acc_train and acc_valid >= max_acc_valid:
-            max_acc_train = acc_train
-            max_acc_valid = acc_valid
-            torch.save(classifier.state_dict(), '%s/seg_model_%d_best.pth' % (opt.outf, epoch))
+    if epoch % 5 == 0 and acc_train > 0.8 and acc_valid > 0.8:
+        torch.save(classifier.state_dict(), '%s/seg_model_%d.pth' % (opt.outf, epoch))
+    elif epoch > 50 and acc_train >= max_acc_train and acc_valid >= max_acc_valid:
+        max_acc_train = acc_train
+        max_acc_valid = acc_valid
+        torch.save(classifier.state_dict(), '%s/seg_model_%d_best.pth' % (opt.outf, epoch))
 
 # --------------------------------------------------------------------------------------------------------------
 '''
