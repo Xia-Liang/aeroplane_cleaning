@@ -1,21 +1,13 @@
 """
-generate data for training set, saving point of World coordinate system
+real time distance estimate after global scan
 
-Since sem-lidar and lidar(set in test_realtime.py) have z = 1.8
-we will drop points near ground z < -1.7
-and points very close to sensor abs(x) < 1, abs(y) < 1
-
-(sem)lidar can not get whole info of plane
-and pointnet performance bad
-so we combine the data from six different place to generate a complete 3d scanning of plane
-
-for each (sem)lidar location (x, y, z) and rotation (pitch, yaw, roll)
-capture a point P_n (x_n, y_n, z_n) relative to (sem)lidar
-so the P_n location in World coordinate system should be :
-
-X = x + x_n * cos(yaw) + y_n * sin(yaw)
-Y = y + y_n * sin(yaw) + y_n * cos(yaw)
-Z = z + z_n
+env 0
+AirplaneFrontCabin 1
+AirplaneRearCabin 2
+AirplaneTail 3
+AirplaneWing 4
+AirplaneEngine 5
+AirplaneWheel 6
 
 """
 
@@ -35,7 +27,16 @@ try:
 except ImportError:
     raise ImportError('cannot import config file')
 
+try:
+    from model.model import PointNetDenseCls
+    import torch
+except ImportError:
+    raise ImportError('cannot import model')
+
 global PRIME
+global GLOBAL_AIRPLANE_LOCATION
+global GLOBAL_AIRPLANE_TAG
+
 
 """
 func: generate_global_prime()
@@ -81,7 +82,7 @@ def draw_image(surface, image):
 
 def save_lidar(lidar):
     # just for test, in training model, 4500 points is suitable
-    if lidar.frame % 3 == 0:
+    if lidar.frame % 13 == 0:
         data = np.copy(np.frombuffer(lidar.raw_data, dtype=np.dtype('f4')))
         data = np.reshape(data, (-1, 4))[:, :3]
 
@@ -89,13 +90,9 @@ def save_lidar(lidar):
         drop_index = (data[:, 2] < -1.6) | (abs(data[:, 0]) < 1) | (abs(data[:, 1]) < 1)
         data = data[np.invert(drop_index)]
 
-        # print('lidar: ', data.shape, end=' ')
 
-
-def save_sem_lidar(lidar_sem, cases):
+def save_sem_lidar(lidar_sem):
     if lidar_sem.frame % 13 == 0:
-        # lidar_sem.save_to_disk('D:\\mb95541\\aeroplane\\data\\lidarSem\\%d_raw' % get_name(lidar_sem.frame))
-
         # in semLidar, xyz+cosAngle are float32, objIdx and objTag are int32;
         data_float = np.copy(np.frombuffer(lidar_sem.raw_data, dtype=np.dtype('f4')))
         data_float = np.reshape(data_float, (-1, 6))[:, :3]
@@ -108,57 +105,66 @@ def save_sem_lidar(lidar_sem, cases):
         data_float = data_float[np.invert(drop_index)]
         data_int = data_int[np.invert(drop_index)]
 
-        # get world coordinate location
-        global_x = lidar_sem.transform.location.x
-        global_y = lidar_sem.transform.location.y
-        global_z = lidar_sem.transform.location.z
-        global_yaw = lidar_sem.transform.rotation.yaw / 180 * np.pi  # turn to pi
 
-        global_location = np.concatenate(
-            (data_float[:, 0:1] * np.cos(global_yaw) - data_float[:, 1:2] * np.sin(global_yaw),
-             data_float[:, 0:1] * np.sin(global_yaw) + data_float[:, 1:2] * np.cos(global_yaw),
-             data_float[:, 2:3]), axis=1)
-        global_location = global_location + [global_x, global_y, global_z]
+def get_global_airplane_location(path=os.path.join('D:', 'mb95541', 'aeroplane', 'data', 'new', 'testset_global_scan'),
+                                 num_sample=20):
+    global GLOBAL_AIRPLANE_LOCATION
+    GLOBAL_AIRPLANE_LOCATION = [[0, 0, 0]]
+    for j in range(num_sample):
+        concat_data = [[0, 0, 0]]
+        for i in range(1, 7):
+            file_list = os.listdir(os.path.join(path, str(i)))
+            file = random.choice(file_list)
+            data = np.loadtxt(os.path.join(path, str(i), file))
+            concat_data = np.concatenate((concat_data, data), axis=0)
+        concat_data = concat_data[1:, :]
+        index = np.random.choice(concat_data.shape[0], 4500)
+        GLOBAL_AIRPLANE_LOCATION = np.concatenate((GLOBAL_AIRPLANE_LOCATION, concat_data[index, :]), axis=0)
+    GLOBAL_AIRPLANE_LOCATION = GLOBAL_AIRPLANE_LOCATION[1:, :]
 
-        data = np.concatenate((global_location, data_int), axis=1)  # xyz, tag
 
-        print(data.shape, end=' ')
-        print('location', global_x, global_y, global_z, global_yaw)
+def get_global_points_tag(num_sample=20):
+    classifier = PointNetDenseCls(k=7)
+    classifier.load_state_dict(torch.load('model\\seg_model_283_best.pth'))
+    classifier.eval()
 
-        if cases == 1:
-            np.savetxt('D:\\mb95541\\aeroplane\\data\\new\\checkpoint1\\%d' % get_name(lidar_sem.frame), data)
-        elif cases == 2:
-            np.savetxt('D:\\mb95541\\aeroplane\\data\\new\\checkpoint2\\%d' % get_name(lidar_sem.frame), data)
-        elif cases == 3:
-            np.savetxt('D:\\mb95541\\aeroplane\\data\\new\\checkpoint3\\%d' % get_name(lidar_sem.frame), data)
-        elif cases == 4:
-            np.savetxt('D:\\mb95541\\aeroplane\\data\\new\\checkpoint4\\%d' % get_name(lidar_sem.frame), data)
-        elif cases == 5:
-            np.savetxt('D:\\mb95541\\aeroplane\\data\\new\\checkpoint5\\%d' % get_name(lidar_sem.frame), data)
-        elif cases == 6:
-            np.savetxt('D:\\mb95541\\aeroplane\\data\\new\\checkpoint6\\%d' % get_name(lidar_sem.frame), data)
-        elif cases == 7:
-            np.savetxt('D:\\mb95541\\aeroplane\\data\\new\\checkpoint7\\%d' % get_name(lidar_sem.frame), data)
-        elif cases == 8:
-            np.savetxt('D:\\mb95541\\aeroplane\\data\\new\\checkpoint8\\%d' % get_name(lidar_sem.frame), data)
+    global GLOBAL_AIRPLANE_LOCATION
+    global GLOBAL_AIRPLANE_TAG
+    GLOBAL_AIRPLANE_TAG = [0]
+    for i in range(num_sample):
+        temp = np.copy(GLOBAL_AIRPLANE_LOCATION[i*4500 : (i+1)*4500, :])
 
-        # np.save('D:\\mb95541\\aeroplane\\data\\new\\checkpoint1\\%d' % get_name(lidar_sem.frame), data)
+        temp = temp - np.expand_dims(np.mean(temp, axis=0), 0)
+        max_dist = np.max(np.sqrt(np.sum(temp ** 2, axis=1)), 0)  # max distance after centering
+        cuda_array = temp / max_dist  # scale
+        # print(cuda_array.shape)
+        cuda_array = cuda_array.reshape((1, 4500, 3))
+        # gpu
+        cuda_array = torch.from_numpy(cuda_array).float().transpose(2, 1)
+        pred, _, _ = classifier(cuda_array)
+        pred = pred.view(-1, 7)
+        pred_choice = pred.data.max(1)[1].cpu().numpy()  # return indices of max val, shape = (length, )
 
-        # print('semLidar: ', data.shape)
-        #
-        # for i in range(34, 40):
-        #     print(len(data[data[:, 3] == i]), end=' ')
-        # print(' ')
+        GLOBAL_AIRPLANE_TAG = np.concatenate((GLOBAL_AIRPLANE_TAG, pred_choice))
+    GLOBAL_AIRPLANE_TAG = GLOBAL_AIRPLANE_TAG[1:]
+
+    for i in range(0, 7):
+        print(len(GLOBAL_AIRPLANE_TAG[GLOBAL_AIRPLANE_TAG == i]))
 
 
 def main():
+    # ----------------get global points location, do pointnet classification -----------------------------------------
+    global GLOBAL_AIRPLANE_LOCATION
+    get_global_airplane_location()
+    get_global_points_tag()
+
+    # ----------------set up pygame------------------------------------------------------------------------------------
     generate_global_prime()
     pygame.init()
     display = pygame.display.set_mode((IMG_WIDTH, IMG_HEIGHT), pygame.HWSURFACE | pygame.DOUBLEBUF)
     font = get_font()
     clock = pygame.time.Clock()
 
-    cases = 1
     try:
         client = carla.Client('localhost', 2000)
         client.set_timeout(10.0)
@@ -166,24 +172,8 @@ def main():
         blueprint_library = world.get_blueprint_library()
 
         # # --- start point --- #
-        if cases == 1:
-            spawn_point = carla.Transform(carla.Location(x=280, y=320, z=1.8),
-                                          carla.Rotation(pitch=0.000000, yaw=270.000, roll=0.000000))
-        elif cases == 2 or cases == 7:
-            spawn_point = carla.Transform(carla.Location(x=260, y=290, z=1.8),
-                                          carla.Rotation(pitch=0.000000, yaw=270.000, roll=0.000000))
-        elif cases == 3:
-            spawn_point = carla.Transform(carla.Location(x=260, y=240, z=1.8),
-                                          carla.Rotation(pitch=0.000000, yaw=270.000, roll=0.000000))
-        elif cases == 4:
-            spawn_point = carla.Transform(carla.Location(x=280, y=210, z=1.8),
-                                          carla.Rotation(pitch=0.000000, yaw=270.000, roll=0.000000))
-        elif cases == 5:
-            spawn_point = carla.Transform(carla.Location(x=300, y=240, z=1.8),
-                                          carla.Rotation(pitch=0.000000, yaw=270.000, roll=0.000000))
-        elif cases == 6 or cases == 8:
-            spawn_point = carla.Transform(carla.Location(x=300, y=290, z=1.8),
-                                          carla.Rotation(pitch=0.000000, yaw=270.000, roll=0.000000))
+        spawn_point = carla.Transform(carla.Location(x=280, y=320, z=1.8),
+                                      carla.Rotation(pitch=0.000000, yaw=270.000, roll=0.000000))
 
         vehicle = world.spawn_actor(blueprint_library.filter('mercedesccc')[0], spawn_point)
         vehicle.set_simulate_physics(True)
@@ -224,12 +214,22 @@ def main():
 
                 draw_image(display, image_rgb)
                 save_lidar(lidar)
-                save_sem_lidar(lidar_sem, cases)
+                save_sem_lidar(lidar_sem)
 
                 # Draw the display.
-                display.blit(font.render('% 5d FPS (real)' % clock.get_fps(), True, (0, 0, 0)), (8, 10))
-                display.blit(font.render('% 5d FPS (simulated)' % fps, True, (0, 0, 0)), (8, 28))
-                display.blit(font.render('% 5d mk/h (velocity)' % vehicle_velocity, True, (0, 0, 0)), (8, 46))
+                display.blit(font.render('% 5d FPS (real)' % clock.get_fps(), True, (0, 0, 0)), (8, 5))
+                display.blit(font.render('% 5d FPS (simulated)' % fps, True, (0, 0, 0)), (8, 25))
+                display.blit(font.render('% 5d km/h (velocity)' % vehicle_velocity, True, (0, 0, 0)), (8, 45))
+
+                display.blit(font.render('    Min dist to each part', True, (0, 0, 0)), (8, 75))
+                display.blit(font.render('%8s %8s %8s' % ('Part', 'Estimate', 'Real'), True, (0, 0, 0)), (8, 100))
+                # display.blit(font.render('% 5d mk/h (velocity)' % vehicle_velocity, True, (0, 0, 0)), (8, 46))
+                # display.blit(font.render('% 5d mk/h (velocity)' % vehicle_velocity, True, (0, 0, 0)), (8, 46))
+                # display.blit(font.render('% 5d mk/h (velocity)' % vehicle_velocity, True, (0, 0, 0)), (8, 46))
+                # display.blit(font.render('% 5d mk/h (velocity)' % vehicle_velocity, True, (0, 0, 0)), (8, 46))
+                # display.blit(font.render('% 5d mk/h (velocity)' % vehicle_velocity, True, (0, 0, 0)), (8, 46))
+                # display.blit(font.render('% 5d mk/h (velocity)' % vehicle_velocity, True, (0, 0, 0)), (8, 46))
+
                 pygame.display.flip()
 
     finally:
