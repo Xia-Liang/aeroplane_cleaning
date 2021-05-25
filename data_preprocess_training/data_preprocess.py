@@ -95,8 +95,8 @@ for i in range(opt.train_data_size):
         data[data[:, 3] == tag][:, 0:3] *= scaling_index[tag]  # for each tag, scalling xyz for all points
     # rotation,
     rotation_theta = [np.random.uniform(0, np.pi / 12),
-                             np.random.uniform(0, np.pi / 12),
-                             np.random.uniform(0, np.pi * 2)]  # x,y for 15, z for 360
+                      np.random.uniform(0, np.pi / 12),
+                      np.random.uniform(0, np.pi * 2)]  # x,y for 15, z for 360
     rotation_x = np.array([[1, 0, 0],
                            [0, np.cos(rotation_theta[0]), -np.sin(rotation_theta[0])],
                            [0, np.sin(rotation_theta[0]), np.cos(rotation_theta[0])]])
@@ -107,6 +107,8 @@ for i in range(opt.train_data_size):
                            [np.sin(rotation_theta[2]), np.cos(rotation_theta[2]), 0],
                            [0, 0, 1]])
     data[:, [0, 1, 2]] = data[:, [0, 1, 2]].dot(rotation_x).dot(rotation_y).dot(rotation_z)
+    # This function only shuffles the array along the first axis of a multi-dimensional array.
+    np.random.shuffle(data)
     np.save(os.path.join(train_data_path, str(i)), data)
 
 

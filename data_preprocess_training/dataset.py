@@ -50,7 +50,7 @@ class AirplaneDataset(data.Dataset):
         point_set = point_set / dist  # scale
 
         if self.data_augmentation:
-            point_set += np.random.normal(0, 0.001, size=point_set.shape)  # random jitter
+            point_set += np.random.normal(0, 0.01, size=point_set.shape)  # random jitter
 
         point_set = torch.from_numpy(point_set)
         point_seg = torch.from_numpy(point_seg)
