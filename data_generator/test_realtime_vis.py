@@ -157,7 +157,7 @@ def get_global_points_tag(num_sample=10):
     global GLOBAL_AIRPLANE_TAG
 
     classifier = PointNetDenseCls(k=7)
-    classifier.load_state_dict(torch.load('model\\seg_model_194_best.pth'))
+    classifier.load_state_dict(torch.load('model\\seg_model_141_best.pth'))
     classifier.eval()
 
     GLOBAL_AIRPLANE_TAG = [0]

@@ -98,7 +98,7 @@ path = os.path.join('D:\\mb95541\\aeroplane\\data\\new')
 # ----------------------------------------------------------------------
 # vis semlidar classification by pointnet in [checkpoint 1-6]
 classifier = PointNetDenseCls(k=7)
-classifier.load_state_dict(torch.load('model\\seg_model_194_best.pth'))
+classifier.load_state_dict(torch.load('model\\seg_model_141_best.pth'))
 classifier.eval()
 
 while True:
